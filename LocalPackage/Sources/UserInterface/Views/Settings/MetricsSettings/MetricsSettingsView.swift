@@ -70,6 +70,7 @@ struct MetricsSettingsView: View {
             CustomMetricsSettingsSectionView(store: store.customMetricsSettings)
         }
         .formStyle(.grouped)
+        .frame(maxHeight: 500)
         .task {
             await store.send(.viewAppeared(String(describing: Self.self)))
         }

@@ -52,6 +52,7 @@ struct RunnerSettingsView: View {
             CustomRunnerSettingsSectionView(store: store.customRunnerSettings)
         }
         .formStyle(.grouped)
+        .frame(maxHeight: 500)
         .task {
             await store.send(.viewAppeared(String(describing: Self.self)))
         }
