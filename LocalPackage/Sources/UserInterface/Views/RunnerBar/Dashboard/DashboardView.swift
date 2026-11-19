@@ -23,31 +23,39 @@ import SwiftUI
 
 struct DashboardView: View {
     @StateObject var store: Dashboard
+    @State private var contentHeight = CGFloat.zero
 
     var body: some View {
-        VStack(spacing: 8) {
-            HStack {
-                Text(store.appName)
-                    .foregroundStyle(.secondary)
-                    .padding(.leading, 8)
-                Spacer()
-                MenuView(store: store.dashboardMenu)
-            }
-            SystemInfoStackView(
-                systemInfoBundle: store.systemInfoBundle,
-                cpuRingBuffer: store.cpuRingBuffer,
-                memoryRingBuffer: store.memoryRingBuffer,
-                isPreview: store.isPreview
-            )
-            ForEach(store.customMetricsBundles) { customMetricsBundle in
-                CustomMetricsCardView(
-                    customMetricsBundle: customMetricsBundle,
-                    displayedDate: store.displayedDate
+        ScrollView {
+            VStack(spacing: 8) {
+                HStack {
+                    Text(store.appName)
+                        .foregroundStyle(.secondary)
+                        .padding(.leading, 8)
+                    Spacer()
+                    MenuView(store: store.dashboardMenu)
+                }
+                SystemInfoStackView(
+                    systemInfoBundle: store.systemInfoBundle,
+                    cpuRingBuffer: store.cpuRingBuffer,
+                    memoryRingBuffer: store.memoryRingBuffer,
+                    isPreview: store.isPreview
                 )
+                ForEach(store.customMetricsBundles) { customMetricsBundle in
+                    CustomMetricsCardView(
+                        customMetricsBundle: customMetricsBundle,
+                        displayedDate: store.displayedDate
+                    )
+                }
+            }
+            .fixedSize()
+            .padding(8)
+            .onGeometryChange(for: CGFloat.self, of: \.size.height) {
+                contentHeight = $0
             }
         }
-        .fixedSize()
-        .padding(8)
+        .scrollBounceBehavior(.basedOnSize)
+        .frame(height: min(contentHeight, NSScreen.main?.visibleFrame.height ?? contentHeight))
         .task {
             await store.send(.viewAppeared(String(describing: Self.self)))
         }
